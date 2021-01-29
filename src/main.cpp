@@ -399,9 +399,9 @@ namespace seed {
 		const T& variant,
 		const seed::AST& tree,
 		std::string& str,
+		int& node_counter,
 		const std::string& title = "subgraph",
-		const int indent_size = 0,
-		int& node_counter = 0
+		const int indent_size = 0
 	) {
 		str += tabs(indent_size) + title + " {\n";
 			render_nodes(variant, tree, str, indent_size + 1, node_counter, node_counter);
@@ -423,7 +423,7 @@ namespace seed {
 
 		int graph_id = 0;
 		for (const seed::node_t& n: roots) {
-			render_cluster(tree[n], tree, str, "subgraph cluster" + std::to_string(graph_id), indent_size + 1, node_counter);
+			render_cluster(tree[n], tree, str, node_counter, "subgraph cluster" + std::to_string(graph_id), indent_size + 1);
 			graph_id++;
 		}
 
@@ -453,7 +453,14 @@ int main(int argc, const char* argv[]) {
 		return -1;
 	}
 
-	auto expr = seed::read_file(argv[1]);
+	const std::string fname = argv[1];
+
+	std::error_code ec;
+	if (not std::filesystem::exists(fname, ec)) {
+		seed::error("file `", fname, "` does not exist.");
+	}
+
+	auto expr = seed::read_file(fname);
 
 	seed::AST tree;
 	seed::Lexer lex{expr.c_str()};
