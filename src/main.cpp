@@ -205,7 +205,7 @@ namespace seed {
 		else if (*ptr == '(') { type = TOKEN_LPAREN; ++ptr; }
 		else if (*ptr == ')') { type = TOKEN_RPAREN; ++ptr; }
 
-		else if (*ptr == '"' or *ptr == '\'') {
+		else if ((*ptr == '"' or *ptr == '\'') and *(ptr - 1) != '\\') {
 			type = TOKEN_STRING;
 			char delim = *ptr;
 
@@ -223,9 +223,13 @@ namespace seed {
 		else if (not seed::is_whitespace(*ptr)) {
 			type = TOKEN_IDENTIFIER;
 
+			if (*ptr == '\\') {
+				++vptr;
+			}
+
 			do {
 				++ptr;
-			} while (not seed::is_whitespace(*ptr) and *ptr != '(' and *ptr != ')');
+			} while (not seed::is_whitespace(*ptr) and not in_group(*ptr, '(', ')'));
 
 			vlen = ptr - vptr;
 		}
