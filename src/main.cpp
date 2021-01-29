@@ -34,6 +34,10 @@ namespace seed {
 
 		constexpr View(const char* const begin_, int length_):
 			begin(begin_), length(length_) {}
+
+		std::string str() const {
+			return std::string{begin, static_cast<std::string::size_type>(length)};
+		}
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const View& v) {
@@ -53,6 +57,10 @@ namespace seed {
 
 		constexpr Token(View view_, uint8_t type_):
 			view(view_), type(type_) {}
+
+		std::string str() const {
+			return view.str();
+		}
 	};
 
 	constexpr bool operator==(const Token& t, const uint8_t type) {
@@ -386,7 +394,17 @@ namespace seed {
 
 			[&] (const String& x) {
 				int self_id = node_counter++;
-				str += tabs(indent_size) + strcat("n", self_id, " [label=\"", x.tok, "\"];\n");
+
+				std::string newstr;
+
+				for (auto chr: x.tok.str()) {
+					if (chr == '"')
+						newstr += "\\\"";
+					else
+						newstr += chr;
+				}
+
+				str += tabs(indent_size) + strcat("n", self_id, " [label=\"", newstr, "\"];\n");
 
 				if (self_id != parent_id) {
 					str += tabs(indent_size) + strcat("n", parent_id, " -> n", self_id, ";\n");
